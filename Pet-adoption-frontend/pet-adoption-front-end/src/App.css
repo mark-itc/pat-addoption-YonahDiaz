@@ -1,0 +1,32 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.nav-bar {
+  height: 58px;
+  background: #343a40;
+  z-index: 99;
+}
+
+.links-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  align-items: center;
+}
+
+.links {
+  width: 38px;
+  height: 16px;
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  margin-left: 20px;
+  margin-right: 20px;
+}
