@@ -2,6 +2,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Roboto";
+  font-style: normal;
 }
 
 .nav-bar {
@@ -29,4 +31,49 @@
   text-decoration: none;
   margin-left: 20px;
   margin-right: 20px;
+}
+
+.sign-in-button {
+  margin-right: 20px;
+}
+
+.log-in-container {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 20%;
+  border: 2px solid black;
+  padding: 10px;
+  background-color: lightsteelblue;
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+  width: 300px;
+  align-items: center;
+  border-radius: 5px;
+}
+
+.sign-in-container {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 20%;
+  border: 2px solid black;
+  padding: 10px;
+  background-color: lightsteelblue;
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+  width: 320px;
+  align-items: center;
+  border-radius: 5px;
+}
+
+.welcome-text {
+  color: white;
+  margin-left: 50px;
 }

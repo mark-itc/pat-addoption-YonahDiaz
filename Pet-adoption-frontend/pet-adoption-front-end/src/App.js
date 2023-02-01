@@ -45,8 +45,9 @@ function NavBar(props) {
             </Link>
           </div>
           <div>
-            <button>LogOut</button>
+            <button className="log-out-button">LogOut</button>
           </div>
+          <div className="welcome-text">Welcome Back ?????</div>
         </div>
       </div>
     );
@@ -64,7 +65,7 @@ function NavBar(props) {
             <Link to="/Search" className="links">
               Search
             </Link>
-          </div>{" "}
+          </div>
           <div>
             <Link to="/MyPets" className="links">
               MyPets
@@ -76,8 +77,9 @@ function NavBar(props) {
             </Link>
           </div>
           <div>
-            <button>LogOut</button>
+            <button className="log-out-button">LogOut</button>
           </div>
+          <div className="welcome-text">Welcome Back ?????</div>
         </div>
       </div>
     );
@@ -95,9 +97,16 @@ function NavBar(props) {
             <Link to="/Search" className="links">
               Search
             </Link>
-          </div>{" "}
+          </div>
           <div>
-            <button>LogIn</button>
+            <button className="sign-in-button" onClick={props.openSignInModal}>
+              SignIn?
+            </button>
+          </div>
+          <div>
+            <button className="log-in-button" onClick={props.openLogInModal}>
+              LogIn?
+            </button>
           </div>
         </div>
       </div>
@@ -105,19 +114,99 @@ function NavBar(props) {
   }
 }
 
+function SignInAndLogInModal(props) {
+  if (props.modalSignIn === true) {
+    return (
+      <div className="sign-in-container">
+        <label>
+          First Name:
+          <input type="text" name="" />
+        </label>
+        <label>
+          Last Name:
+          <input type="text" name="" />
+        </label>
+        <label>
+          Email:
+          <input type="text" value="" />
+        </label>
+        <label>
+          Pone Number:
+          <input type="text" value="" />
+        </label>
+        <label>
+          Password:
+          <input type="text" value="" />
+        </label>
+        <label>
+          Confirm Password:
+          <input type="text" value="" />
+        </label>
+        <div>
+          <button onClick={props.closeSignInModal}>Close</button>
+          <button>SignIn</button>
+        </div>
+      </div>
+    );
+  }
+  if (props.modalLogIn === true) {
+    return (
+      <div className="log-in-container">
+        <label>
+          Name:
+          <input type="text" name="" />
+        </label>
+        <label>
+          Email:
+          <input type="text" value="" />
+        </label>
+        <div>
+          <button onClick={props.closeLogInModal}>Close</button>
+          <button>LogIn</button>
+        </div>
+      </div>
+    );
+  }
+}
+
 function App() {
-  const [isLogged, setIsLogged] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isLogged, setIsLogged] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [modalSignIn, setModalSignIn] = useState(false);
+  const [modalLogIn, setModalLogIn] = useState(false);
+  const openLogInModal = () => {
+    setModalLogIn(true);
+    setModalSignIn(false);
+  };
+  const closeLogInModal = () => {
+    setModalLogIn(false);
+  };
+  const openSignInModal = () => {
+    setModalSignIn(true);
+    setModalLogIn(false);
+  };
+  const closeSignInModal = () => {
+    setModalSignIn(false);
+  };
 
   return (
     <div>
-      <NavBar isAdmin={isAdmin} isLogged={isLogged} />
+      <NavBar
+        isAdmin={isAdmin}
+        isLogged={isLogged}
+        openLogInModal={openLogInModal}
+        openSignInModal={openSignInModal}
+      />
+      <SignInAndLogInModal
+        modalSignIn={modalSignIn}
+        modalLogIn={modalLogIn}
+        closeSignInModal={closeSignInModal}
+        closeLogInModal={closeLogInModal}
+      />
+
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route
-          path="/Search"
-          element={isLogged ? <Search /> : <Navigate to="/" />}
-        />
+        <Route path="/Search" element={<Search />} />
         <Route
           path="/ProfileSettings"
           element={isLogged ? <ProfileSettings /> : <Navigate to="/" />}
