@@ -120,31 +120,55 @@ function SignInAndLogInModal(props) {
       <div className="sign-in-container">
         <label>
           First Name:
-          <input type="text" name="" />
+          <input
+            type="text"
+            value={props.firstName}
+            onChange={props.handleChangeFirstName}
+          />
         </label>
         <label>
           Last Name:
-          <input type="text" name="" />
+          <input
+            type="text"
+            value={props.lastName}
+            onChange={props.handleChangeLastName}
+          />
         </label>
         <label>
           Email:
-          <input type="text" value="" />
+          <input
+            type="text"
+            value={props.email}
+            onChange={props.handleChangeEmail}
+          />
         </label>
         <label>
-          Pone Number:
-          <input type="text" value="" />
+          Phone Number:
+          <input
+            type="text"
+            value={props.phoneNumber}
+            onChange={props.handleChangePhoneNumber}
+          />
         </label>
         <label>
           Password:
-          <input type="text" value="" />
+          <input
+            type="text"
+            value={props.password}
+            onChange={props.handleChangePassword}
+          />
         </label>
         <label>
           Confirm Password:
-          <input type="text" value="" />
+          <input
+            type="text"
+            value={props.confirmPassword}
+            onChange={props.handleChangeConfirmPassword}
+          />
         </label>
         <div>
           <button onClick={props.closeSignInModal}>Close</button>
-          <button>SignIn</button>
+          <button onClick={props.signInButton}>SignIn</button>
         </div>
       </div>
     );
@@ -153,16 +177,24 @@ function SignInAndLogInModal(props) {
     return (
       <div className="log-in-container">
         <label>
-          Name:
-          <input type="text" name="" />
+          Email:
+          <input
+            type="text"
+            value={props.email}
+            onChange={props.handleChangeEmail}
+          />
         </label>
         <label>
-          Email:
-          <input type="text" value="" />
+          Password:
+          <input
+            type="text"
+            value={props.password}
+            onChange={props.handleChangePassword}
+          />
         </label>
         <div>
           <button onClick={props.closeLogInModal}>Close</button>
-          <button>LogIn</button>
+          <button onClick={props.logInButton}>LogIn</button>
         </div>
       </div>
     );
@@ -170,10 +202,17 @@ function SignInAndLogInModal(props) {
 }
 
 function App() {
-  const [isLogged, setIsLogged] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLogged, setIsLogged] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(true);
   const [modalSignIn, setModalSignIn] = useState(false);
   const [modalLogIn, setModalLogIn] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const openLogInModal = () => {
     setModalLogIn(true);
     setModalSignIn(false);
@@ -188,7 +227,46 @@ function App() {
   const closeSignInModal = () => {
     setModalSignIn(false);
   };
+  const handleChangeFirstName = (event) => {
+    setFirstName(event.target.value);
+  };
+  const handleChangeLastName = (event) => {
+    setLastName(event.target.value);
+  };
+  const handleChangeEmail = (event) => {
+    setEmail(event.target.value);
+  };
+  const handleChangePhoneNumber = (event) => {
+    setPhoneNumber(event.target.value);
+  };
+  const handleChangePassword = (event) => {
+    setPassword(event.target.value);
+  };
+  const handleChangeConfirmPassword = (event) => {
+    setConfirmPassword(event.target.value);
+  };
+  const signInButton = () => {
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setPhoneNumber("");
+    setPassword("");
+    setConfirmPassword("");
 
+    console.log([
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword,
+    ]);
+  };
+  const logInButton = () => {
+    console.log([email, password]);
+    setEmail("");
+    setPassword("");
+  };
   return (
     <div>
       <NavBar
@@ -198,10 +276,24 @@ function App() {
         openSignInModal={openSignInModal}
       />
       <SignInAndLogInModal
+        firstName={firstName}
+        lastName={lastName}
+        email={email}
+        phoneNumber={phoneNumber}
+        password={password}
+        confirmPassword={confirmPassword}
         modalSignIn={modalSignIn}
         modalLogIn={modalLogIn}
         closeSignInModal={closeSignInModal}
         closeLogInModal={closeLogInModal}
+        signInButton={signInButton}
+        logInButton={logInButton}
+        handleChangeFirstName={handleChangeFirstName}
+        handleChangeLastName={handleChangeLastName}
+        handleChangeEmail={handleChangeEmail}
+        handleChangePhoneNumber={handleChangePhoneNumber}
+        handleChangePassword={handleChangePassword}
+        handleChangeConfirmPassword={handleChangeConfirmPassword}
       />
 
       <Routes>
