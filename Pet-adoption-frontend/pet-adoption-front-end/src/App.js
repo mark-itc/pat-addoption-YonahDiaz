@@ -7,7 +7,7 @@ import Home from "./views/Home";
 import AdminDashboard from "./views/AdminDashboard";
 import AdminAddPet from "./views/AdminAddPet";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function NavBar(props) {
   if (props.isAdmin === true) {
@@ -45,9 +45,11 @@ function NavBar(props) {
             </Link>
           </div>
           <div>
-            <button className="log-out-button">LogOut</button>
+            <button className="log-out-button" onClick={props.logOut}>
+              LogOut
+            </button>
           </div>
-          <div className="welcome-text">Welcome Back ?????</div>
+          <div className="welcome-text">Welcome Back {props.welcomeName}</div>
         </div>
       </div>
     );
@@ -77,9 +79,11 @@ function NavBar(props) {
             </Link>
           </div>
           <div>
-            <button className="log-out-button">LogOut</button>
+            <button className="log-out-button" onClick={props.logOut}>
+              LogOut
+            </button>
           </div>
-          <div className="welcome-text">Welcome Back ?????</div>
+          <div className="welcome-text">Welcome Back {props.welcomeName}</div>
         </div>
       </div>
     );
@@ -202,8 +206,9 @@ function SignInAndLogInModal(props) {
 }
 
 function App() {
-  const [isLogged, setIsLogged] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [welcomeName, setWelcomeName] = useState("");
+  const [isLogged, setIsLogged] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [modalSignIn, setModalSignIn] = useState(false);
   const [modalLogIn, setModalLogIn] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -212,7 +217,33 @@ function App() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      const token = localStorage.getItem("token");
+      fetch("http://localhost:3001/lastsession", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: `${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            setIsLogged(true);
+            setWelcomeName(data.user.firstName);
+            if (data.user.admin) {
+              setIsAdmin(true);
+            }
+          }
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    } else {
+      console.log("No token");
+    }
+  }, []);
   const openLogInModal = () => {
     setModalLogIn(true);
     setModalSignIn(false);
@@ -252,26 +283,129 @@ function App() {
     setPhoneNumber("");
     setPassword("");
     setConfirmPassword("");
-
-    console.log([
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      password,
-      confirmPassword,
-    ]);
+    if (password !== confirmPassword) {
+      return;
+    } else {
+      fetch("http://localhost:3001/signIn", {
+        method: "POST",
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+          password,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
+        })
+        .then(() => {
+          if (localStorage.getItem("token")) {
+            const token = localStorage.getItem("token");
+            fetch("http://localhost:3001/lastsession", {
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                Authorization: `${token}`,
+              },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.user) {
+                  setIsLogged(true);
+                  setModalSignIn(false);
+                  setWelcomeName(data.user.firstName);
+                  if (data.user.admin) {
+                    setIsAdmin(true);
+                  }
+                }
+              })
+              .catch((err) => {
+                console.log(err.message);
+              });
+          } else {
+            console.log("No token");
+          }
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    }
   };
   const logInButton = () => {
-    console.log([email, password]);
     setEmail("");
     setPassword("");
+    if (password && email) {
+      fetch("http://localhost:3001/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
+        })
+        .then(() => {
+          if (localStorage.getItem("token")) {
+            const token = localStorage.getItem("token");
+            fetch("http://localhost:3001/lastsession", {
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                Authorization: `${token}`,
+              },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.user) {
+                  setIsLogged(true);
+                  setModalLogIn(false);
+                  setWelcomeName(data.user.firstName);
+                  if (data.user.admin) {
+                    setIsAdmin(true);
+                  }
+                }
+              })
+              .catch((err) => {
+                console.log(err.message);
+              });
+          } else {
+            console.log("No token");
+          }
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    }
   };
+
+  const logOut = () => {
+    setIsLogged(false);
+    setIsAdmin(false);
+    setWelcomeName("");
+    localStorage.removeItem("token");
+  };
+
   return (
     <div>
       <NavBar
+        welcomeName={welcomeName}
         isAdmin={isAdmin}
         isLogged={isLogged}
+        logOut={logOut}
         openLogInModal={openLogInModal}
         openSignInModal={openSignInModal}
       />
