@@ -12,9 +12,7 @@ require("dotenv").config();
 var cors = require("cors");
 const express = require("express");
 const app = express();
-
-app.use(cors());
-app.use(express.json());
+const multer = require("multer");
 
 async function initDB() {
   MongoClient.connect(process.env.MONGODB_URI)
@@ -34,6 +32,19 @@ async function initDB() {
 
 initDB();
 
+app.use(cors());
+app.use(express.json());
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname.replace(/\s+/g, "") + "" + Date.now() + ".jpg");
+  },
+});
+const upload = multer({ storage: storage, preservePath: true });
+
 async function registerValidation(req, res, next) {
   const validRequest = RegisterValidation(req.body);
 
@@ -48,7 +59,6 @@ async function registerValidation(req, res, next) {
 
 async function loginValidation(req, res, next) {
   const validRequest = LoginValidation(req.body);
-
   if (!validRequest) {
     return res.status(400).json({
       success: false,
@@ -135,11 +145,43 @@ async function lastSession(req, res) {
   }
 }
 
+async function isAdmin(req, res, next) {
+  try {
+    token = await req.headers.authorization;
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await UsersDAO.getUserById(new ObjectId(verified.user_id));
+    if (user.admin === true) {
+      next();
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+async function addPet(req, res) {
+  try {
+    const petObject = req.body;
+    await PetsDAO.createPet(petObject, req.file.path);
+    return res.json({});
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
+app.get("/lastsession", lastSession);
+
 app.post("/signIn", registerValidation, register);
 
 app.post("/login", loginValidation, login);
 
-app.get("/lastsession", lastSession);
+app.post("/addpet", isAdmin, upload.single("file"), addPet);
 
 app.listen(3001, async () => {
   console.log("Server is running on port 3001");

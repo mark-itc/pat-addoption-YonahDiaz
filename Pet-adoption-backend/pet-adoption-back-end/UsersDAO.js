@@ -19,6 +19,9 @@ module.exports = class UsersDAO {
   static async createUser(userData) {
     userData.created_at = new Date();
     userData.admin = false;
+    userData.saved = [];
+    userData.fostered = [];
+    userData.adopted = [];
     await usersCollection.insertOne({ ...userData });
   }
 };

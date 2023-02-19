@@ -10,4 +10,10 @@ module.exports = class PetsDAO {
       console.log(`Could not establish connection to pets collection ${e}`);
     }
   }
+  static async createPet(petData, photoPath) {
+    petData.photoPath = photoPath;
+    petData.available = true;
+    petData.created_at = new Date();
+    await petsCollection.insertOne({ ...petData });
+  }
 };
