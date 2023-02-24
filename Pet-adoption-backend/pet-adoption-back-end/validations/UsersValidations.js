@@ -8,7 +8,7 @@ module.exports.RegisterValidation = ajv.compile({
     lastName: { type: "string", minLength: 2, maxLength: 24 },
     email: { type: "string", minLength: 5, maxLength: 24 },
     phoneNumber: { type: "string", minLength: 9, maxLength: 24 },
-    password: { type: "string", minLength: 8, maxLength: 24 },
+    password: { type: "string", minLength: 8, maxLength: 250 },
   },
   required: ["firstName", "lastName", "email", "phoneNumber", "password"],
   additionalProperties: false,

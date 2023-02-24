@@ -37,13 +37,16 @@ app.use(express.json());
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "images/");
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname.replace(/\s+/g, "") + "" + Date.now() + ".jpg");
+    cb(null, Date.now() + file.originalname.replace(/\s+/g, ""));
   },
 });
 const upload = multer({ storage: storage, preservePath: true });
+
+app.use(express.static("images"));
+app.use("/images", express.static("images"));
 
 async function registerValidation(req, res, next) {
   const validRequest = RegisterValidation(req.body);
@@ -145,6 +148,21 @@ async function lastSession(req, res) {
   }
 }
 
+async function isLogged(req, res, next) {
+  try {
+    token = await req.headers.authorization;
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    if (verified) {
+      next();
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
 async function isAdmin(req, res, next) {
   try {
     token = await req.headers.authorization;
@@ -175,6 +193,146 @@ async function addPet(req, res) {
   }
 }
 
+async function getAllUsers(req, res) {
+  try {
+    users = await UsersDAO.getAllUsers();
+    return res.json(users);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
+async function getAllPets(req, res) {
+  try {
+    pets = await PetsDAO.getAllPets();
+    return res.json(pets);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
+async function getPet(req, res) {
+  try {
+    const id = await req.params["id"];
+    console.log(id);
+    const pet = await PetsDAO.getPetById(new ObjectId(id));
+    console.log(pet);
+    return res.json({
+      pet,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
+async function editPet(req, res) {
+  try {
+    const id = await req.params["id"];
+    const pet = await PetsDAO.getPetById(new ObjectId(id));
+    const petObject = req.body;
+    if (!req.file) {
+      await PetsDAO.editPet(new ObjectId(id), petObject, pet.photoPath);
+    } else {
+      await PetsDAO.editPet(new ObjectId(id), petObject, req.file.path);
+    }
+
+    return res.status(200).json({
+      id,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
+async function getUser(req, res) {
+  try {
+    token = await req.headers.authorization;
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    if (verified) {
+      const user = await UsersDAO.getUserById(new ObjectId(verified.user_id));
+      return res.json({
+        user,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
+async function editUser(req, res) {
+  try {
+    const id = await req.params["id"];
+    const userObject = await req.body;
+    const user = await UsersDAO.getUserById(new ObjectId(id));
+    const existingEmail = await UsersDAO.getUserByEmail(userObject.email);
+    if (existingEmail) {
+      if (existingEmail.email !== user.email) {
+        return res.status(400).json({
+          success: false,
+          message: "Please select a different email",
+        });
+      }
+    }
+    if (userObject.password === "") {
+      userObject.password = user.password;
+      console.log(userObject);
+      const validRequest = RegisterValidation(userObject);
+      if (!validRequest) {
+        return res.status(400).json({
+          success: false,
+          message: "Please fill all fields",
+        });
+      }
+      await UsersDAO.editUser(new ObjectId(id), userObject);
+      console.log(await user);
+      return res.status(200).json({
+        id,
+      });
+    } else {
+      const validRequest = RegisterValidation(userObject);
+      if (!validRequest) {
+        return res.status(400).json({
+          success: false,
+          message: "Please fill all fields",
+        });
+      }
+      userObject.password = sha256(userObject.password);
+      console.log(userObject);
+      await UsersDAO.editUser(new ObjectId(id), userObject);
+      console.log(await user);
+      return res.status(200).json({
+        id,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
 app.get("/lastsession", lastSession);
 
 app.post("/signIn", registerValidation, register);
@@ -182,6 +340,18 @@ app.post("/signIn", registerValidation, register);
 app.post("/login", loginValidation, login);
 
 app.post("/addpet", isAdmin, upload.single("file"), addPet);
+
+app.get("/pets", isAdmin, getAllPets);
+
+app.get("/users", isAdmin, getAllUsers);
+
+app.get("/pet/:id", isAdmin, getPet);
+
+app.put("/pet/:id", isAdmin, upload.single("file"), editPet);
+
+app.get("/user", isLogged, getUser);
+
+app.put("/user/:id", isLogged, editUser);
 
 app.listen(3001, async () => {
   console.log("Server is running on port 3001");

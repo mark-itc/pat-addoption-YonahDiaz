@@ -13,10 +13,9 @@
 .users-data {
   display: flex;
   flex-direction: column;
-  position: fixed;
-  top: 20%;
-  left: 40%;
-  border: 2px solid black;
+  border: 2px solid #343a40;
+  background: #8b8f92;
+  color: white;
   padding: 10px;
   font-family: "Roboto";
   font-style: normal;
@@ -28,15 +27,14 @@
   justify-content: space-between;
   border-radius: 5px;
   height: 300px;
+  margin: 10px;
 }
 .res-cont-dash {
   display: flex;
   flex-direction: column;
-  position: absolute;
   left: 40%;
   top: 400px;
   width: 500px;
-  height: 100%;
 }
 
 .row-cont-dash {
@@ -44,13 +42,15 @@
   flex-direction: row;
   align-items: center;
   height: 100%;
-  border: 2px solid black;
+  border: 2px solid #343a40;
   border-radius: 5px;
-  background-color: beige;
+  color: white;
+  background: #8b8f92;
   margin-bottom: 20px;
-  width: 500px;
-  height: 150px;
+  width: 900px;
+  height: 400px;
   justify-content: space-between;
+  padding-right: 10px;
 }
 
 .col-cont-dash {
@@ -61,10 +61,10 @@
 }
 
 .image {
-  width: 150px;
-  height: 150px;
-  border-right: 2px solid black;
-  border-bottom: 2px solid black;
+  width: 400px;
+  height: 400px;
+  border-top: 2px solid #343a40;
+  border-bottom: 2px solid #343a40;
 }
 
 .pet-page-button {
@@ -76,10 +76,8 @@
 .pet-details {
   display: flex;
   flex-direction: column;
-  position: fixed;
   top: 20%;
   left: 40%;
-  border: 2px solid black;
   padding: 10px;
   font-family: "Roboto";
   font-style: normal;
@@ -90,7 +88,7 @@
   align-items: normal;
   justify-content: space-evenly;
   border-radius: 5px;
-  height: 800px;
+  height: 400px;
 }
 
 .prof-element {
@@ -100,4 +98,30 @@
 
 .bio-area {
   resize: none;
+}
+
+.users-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  position: absolute;
+  top: 20%;
+  left: 40%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.pets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  position: absolute;
+  top: 20%;
+  left: 30%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }

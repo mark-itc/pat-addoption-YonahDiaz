@@ -26,12 +26,12 @@ function NavBar(props) {
           </div>
           <div>
             <Link to="/MyPets" className="links">
-              MyPets
+              My Pets
             </Link>
           </div>
           <div>
             <Link to="/ProfileSettings" className="links">
-              ProfileSettings
+              Profile Settings
             </Link>
           </div>
           <div>
@@ -46,7 +46,7 @@ function NavBar(props) {
           </div>
           <div>
             <button className="log-out-button" onClick={props.logOut}>
-              LogOut
+              Log Out
             </button>
           </div>
           <div className="welcome-text">Welcome Back {props.welcomeName}</div>
@@ -70,17 +70,17 @@ function NavBar(props) {
           </div>
           <div>
             <Link to="/MyPets" className="links">
-              MyPets
+              My Pets
             </Link>
           </div>
           <div>
             <Link to="/ProfileSettings" className="links">
-              ProfileSettings
+              Profile Settings
             </Link>
           </div>
           <div>
             <button className="log-out-button" onClick={props.logOut}>
-              LogOut
+              Log Out
             </button>
           </div>
           <div className="welcome-text">Welcome Back {props.welcomeName}</div>
@@ -104,12 +104,12 @@ function NavBar(props) {
           </div>
           <div>
             <button className="sign-in-button" onClick={props.openSignInModal}>
-              SignIn?
+              Sign In?
             </button>
           </div>
           <div>
             <button className="log-in-button" onClick={props.openLogInModal}>
-              LogIn?
+              Log In?
             </button>
           </div>
         </div>

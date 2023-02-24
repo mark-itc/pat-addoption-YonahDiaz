@@ -1,5 +1,5 @@
 import "./ProfileSettings.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function ProfileDetails(props) {
   return (
@@ -45,16 +45,13 @@ function ProfileDetails(props) {
           onChange={props.handleChangePassword}
         />
       </label>
-      <label className="prof-element">
-        Confirm New Password:
-        <input
-          type="text"
-          value={props.confirmPassword}
-          onChange={props.handleChangeConfirmPassword}
-        />
-      </label>
       <div>
-        <button className="prof-element" onClick={props.saveChangesButton}>
+        <button
+          className="prof-element"
+          onClick={() => {
+            props.saveChangesButton(props.userId);
+          }}
+        >
           Save
         </button>
       </div>
@@ -63,12 +60,62 @@ function ProfileDetails(props) {
 }
 
 function ProfileSettings() {
+  const [userId, setUserId] = useState("");
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      const token = localStorage.getItem("token");
+      fetch("http://localhost:3001/user", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: `${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            setFirstName(data.user.firstName);
+            setLastName(data.user.lastName);
+            setEmail(data.user.email);
+            setPhoneNumber(data.user.phoneNumber);
+            setUserId(data.user._id);
+          }
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    } else {
+      console.log("No token");
+    }
+  }, []);
+
+  const saveChangesButton = async (id) => {
+    const token = localStorage.getItem("token");
+    await fetch("http://localhost:3001/user/" + id, {
+      method: "PUT",
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        password,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        Authorization: `${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setPassword("");
+      });
+  };
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const handleChangeFirstName = (event) => {
     setFirstName(event.target.value);
   };
@@ -84,43 +131,22 @@ function ProfileSettings() {
   const handleChangePassword = (event) => {
     setPassword(event.target.value);
   };
-  const handleChangeConfirmPassword = (event) => {
-    setConfirmPassword(event.target.value);
-  };
-  const saveChangesButton = () => {
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setPhoneNumber("");
-    setPassword("");
-    setConfirmPassword("");
-
-    console.log([
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      password,
-      confirmPassword,
-    ]);
-  };
 
   return (
     <div>
       <ProfileDetails
+        userId={userId}
         firstName={firstName}
         lastName={lastName}
         email={email}
         phoneNumber={phoneNumber}
         password={password}
-        confirmPassword={confirmPassword}
         saveChangesButton={saveChangesButton}
         handleChangeFirstName={handleChangeFirstName}
         handleChangeLastName={handleChangeLastName}
         handleChangeEmail={handleChangeEmail}
         handleChangePhoneNumber={handleChangePhoneNumber}
         handleChangePassword={handleChangePassword}
-        handleChangeConfirmPassword={handleChangeConfirmPassword}
       />
     </div>
   );
