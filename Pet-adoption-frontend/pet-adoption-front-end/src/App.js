@@ -6,7 +6,7 @@ import MyPets from "./views/MyPets";
 import Home from "./views/Home";
 import AdminDashboard from "./views/AdminDashboard";
 import AdminAddPet from "./views/AdminAddPet";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 function NavBar(props) {
@@ -141,17 +141,24 @@ function SignInAndLogInModal(props) {
         <label>
           Email:
           <input
-            type="text"
+            placeholder="Only gmail address"
             value={props.email}
             onChange={props.handleChangeEmail}
+            type="email"
+            id="email"
+            pattern=".+@gmail\.com"
+            size="30"
+            required
           />
         </label>
         <label>
           Phone Number:
           <input
-            type="text"
             value={props.phoneNumber}
             onChange={props.handleChangePhoneNumber}
+            type="tel"
+            pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+            required
           />
         </label>
         <label>
@@ -217,6 +224,7 @@ function App() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
   useEffect(() => {
     if (localStorage.getItem("token")) {
       const token = localStorage.getItem("token");
@@ -321,6 +329,7 @@ function App() {
                   setIsLogged(true);
                   setModalSignIn(false);
                   setWelcomeName(data.user.firstName);
+                  navigate("/");
                   if (data.user.admin) {
                     setIsAdmin(true);
                   }
@@ -374,6 +383,7 @@ function App() {
                   setIsLogged(true);
                   setModalLogIn(false);
                   setWelcomeName(data.user.firstName);
+                  navigate("/");
                   if (data.user.admin) {
                     setIsAdmin(true);
                   }
@@ -397,6 +407,7 @@ function App() {
     setIsAdmin(false);
     setWelcomeName("");
     localStorage.removeItem("token");
+    navigate("/");
   };
 
   return (

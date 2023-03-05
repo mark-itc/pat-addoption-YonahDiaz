@@ -47,4 +47,59 @@ module.exports = class UsersDAO {
       }
     );
   }
+
+  static async savePet(_id, id) {
+    await usersCollection.updateOne(
+      { _id },
+      {
+        $addToSet: {
+          saved: id,
+        },
+      }
+    );
+  }
+
+  static async adoptPet(_id, id) {
+    await usersCollection.updateOne(
+      { _id },
+      {
+        $addToSet: {
+          adopted: id,
+        },
+      }
+    );
+  }
+  static async fosterPet(_id, id) {
+    await usersCollection.updateOne(
+      { _id },
+      {
+        $addToSet: {
+          fostered: id,
+        },
+      }
+    );
+  }
+
+  static async deleteSaved(_id, id) {
+    await usersCollection.updateOne(
+      { _id },
+      {
+        $pull: {
+          saved: id,
+        },
+      }
+    );
+  }
+
+  static async returnPet(_id, id) {
+    await usersCollection.updateOne(
+      { _id },
+      {
+        $pull: {
+          fostered: id,
+          adopted: id,
+        },
+      }
+    );
+  }
 };

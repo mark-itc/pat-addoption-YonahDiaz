@@ -1,6 +1,7 @@
 import "./Search.css";
-import { useState } from "react";
-import Spider from "../images/spider.png";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import background from "../images/Dog-and-cat-friends-pets_2560x1600.jpg";
 function SearchForms(props) {
   if (props.advanceSearch === false) {
     return (
@@ -12,7 +13,7 @@ function SearchForms(props) {
             value={props.type}
             onChange={props.handleChangeType}
           ></input>
-          <button className="search-comp" onClick={props.simpleSearchButton}>
+          <button className="search-comp" onClick={props.getPetByType}>
             Search
           </button>
           <button className="search-comp" onClick={props.advanceSearchToggle}>
@@ -57,10 +58,7 @@ function SearchForms(props) {
             onChange={props.handleChangePetName}
           ></input>
           <div className="adv-buttons">
-            <button
-              className="search-comp"
-              onClick={props.advancedSearchButton}
-            >
+            <button className="search-comp" onClick={props.getPetAdvanced}>
               Search
             </button>
             <button className="search-comp" onClick={props.advanceSearchToggle}>
@@ -74,31 +72,54 @@ function SearchForms(props) {
 }
 
 function Results(props) {
-  if (props.results === true && props.isLogged === true) {
+  if (props.isLogged === true) {
     return (
       <div className="res-cont-search">
-        <div className="row-cont-search">
-          <img className="image-search" src={Spider} alt="" />
-          <div className="col-cont-search">
-            <div>Name: ?????</div>
-            <div>Status: ??????</div>
+        {props.results.map((element, index) => (
+          <div key={index}>
+            <div className="row-cont-search">
+              <img
+                className="image-search"
+                src={`http://localhost:3001/${element.photoPath}`}
+                alt=""
+              />
+              <div className="col-cont-search">
+                <div>Name: {element.petName}</div>
+                <div>Status: {element.adoptionStatus}</div>
+              </div>
+              <button
+                className="pet-page-button"
+                onClick={() => {
+                  props.goToButton(element._id);
+                }}
+              >
+                Go To This Pet Page
+              </button>
+            </div>
           </div>
-          <button className="pet-page-button">Go To This Pet Page</button>
-        </div>
+        ))}
       </div>
     );
   }
-  if (props.results === true && props.isLogged === false) {
+  if (props.isLogged === false) {
     return (
       <div className="res-cont-search">
-        <div className="row-cont-search">
-          <img className="image-search" src={Spider} alt="" />
-          <div className="col-cont-search">
-            <div>Name: ?????</div>
-            <div>Status: ??????</div>
+        {props.results.map((element, index) => (
+          <div key={index}>
+            <div className="row-cont-search">
+              <img
+                className="image-search"
+                src={`http://localhost:3001/${element.photoPath}`}
+                alt=""
+              />
+              <div className="col-cont-search">
+                <div>Name: {element.petName}</div>
+                <div>Status: {element.adoptionStatus}</div>
+              </div>
+              <div className="log-in-info">Log In For More Info</div>
+            </div>
           </div>
-          <div className="log-in-info">Log In For More Info</div>
-        </div>
+        ))}
       </div>
     );
   }
@@ -106,25 +127,90 @@ function Results(props) {
 
 function Search() {
   const [advanceSearch, setAdvanceSearch] = useState(false);
-  const [results, setResults] = useState(true);
+  const [results, setResults] = useState([]);
   const [isLogged, setIsLogged] = useState(false);
   const [type, setType] = useState("");
   const [adoptionStatus, setAdoptionStatus] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [petName, setPetName] = useState("");
-  const simpleSearchButton = () => {
-    console.log(type);
-    setType("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      const token = localStorage.getItem("token");
+      fetch("http://localhost:3001/lastsession", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: `${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            setIsLogged(true);
+          }
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    } else {
+    }
+  }, []);
+
+  const goToButton = async (id) => {
+    localStorage.setItem("petId", id);
+    navigate("/Pet");
   };
-  const advancedSearchButton = () => {
-    console.log([type, adoptionStatus, height, weight, petName]);
-    setType("");
-    setAdoptionStatus("");
-    setHeight("");
-    setWeight("");
-    setPetName("");
+
+  const getPetByType = async () => {
+    await fetch("http://localhost:3001/petbytype", {
+      method: "POST",
+      body: JSON.stringify({ type }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setResults(data.pet);
+        console.log(data);
+        setType("");
+      })
+      .catch((err) => {
+        console.log(err.message);
+        setType("");
+      });
   };
+
+  const getPetAdvanced = async () => {
+    await fetch("http://localhost:3001/petadvanced", {
+      method: "POST",
+      body: JSON.stringify({ type, adoptionStatus, height, weight, petName }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setResults(data.pet);
+        console.log(data);
+        setType("");
+        setAdoptionStatus("");
+        setHeight("");
+        setWeight("");
+        setPetName("");
+      })
+      .catch((err) => {
+        console.log(err.message);
+        setType("");
+        setAdoptionStatus("");
+        setHeight("");
+        setWeight("");
+        setPetName("");
+      });
+  };
+
   const handleChangeType = (event) => {
     setType(event.target.value);
   };
@@ -153,6 +239,7 @@ function Search() {
     <div className="search-and-res-container">
       <div>
         <SearchForms
+          getPetByType={getPetByType}
           type={type}
           adoptionStatus={adoptionStatus}
           height={height}
@@ -160,15 +247,18 @@ function Search() {
           petName={petName}
           advanceSearch={advanceSearch}
           advanceSearchToggle={advanceSearchToggle}
-          simpleSearchButton={simpleSearchButton}
-          advancedSearchButton={advancedSearchButton}
+          getPetAdvanced={getPetAdvanced}
           handleChangeType={handleChangeType}
           handleChangeAdoptionStatus={handleChangeAdoptionStatus}
           handleChangeHeight={handleChangeHeight}
           handleChangeWeight={handleChangeWeight}
           handleChangePetName={handleChangePetName}
         />
-        <Results results={results} isLogged={isLogged} />
+        <Results
+          goToButton={goToButton}
+          results={results}
+          isLogged={isLogged}
+        />
       </div>
     </div>
   );

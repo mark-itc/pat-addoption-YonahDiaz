@@ -24,17 +24,23 @@ function ProfileDetails(props) {
       <label className="prof-element">
         Email:
         <input
-          type="text"
           value={props.email}
           onChange={props.handleChangeEmail}
+          type="email"
+          id="email"
+          pattern=".+@gmail\.com"
+          size="30"
+          required
         />
       </label>
       <label className="prof-element">
         Phone Number:
         <input
-          type="text"
           value={props.phoneNumber}
           onChange={props.handleChangePhoneNumber}
+          type="tel"
+          pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+          required
         />
       </label>
       <label className="prof-element">
@@ -133,7 +139,7 @@ function ProfileSettings() {
   };
 
   return (
-    <div>
+    <div className="background">
       <ProfileDetails
         userId={userId}
         firstName={firstName}

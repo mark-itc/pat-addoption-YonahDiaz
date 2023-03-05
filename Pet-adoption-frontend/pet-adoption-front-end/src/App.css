@@ -44,7 +44,7 @@
   left: 20%;
   border: 2px solid black;
   padding: 10px;
-  background-color: lightsteelblue;
+  background-color: antiquewhite;
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
@@ -53,6 +53,7 @@
   width: 300px;
   align-items: center;
   border-radius: 5px;
+  z-index: 9;
 }
 
 .sign-in-container {
@@ -62,7 +63,7 @@
   left: 20%;
   border: 2px solid black;
   padding: 10px;
-  background-color: lightsteelblue;
+  background-color: antiquewhite;
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
@@ -71,6 +72,7 @@
   width: 320px;
   align-items: center;
   border-radius: 5px;
+  z-index: 9;
 }
 
 .welcome-text {

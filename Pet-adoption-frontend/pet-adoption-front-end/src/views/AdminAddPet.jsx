@@ -215,7 +215,7 @@ function AdminAddPet() {
     setBio(event.target.value);
   };
   return (
-    <div>
+    <div className="background">
       <AddPet
         image={image}
         petName={petName}

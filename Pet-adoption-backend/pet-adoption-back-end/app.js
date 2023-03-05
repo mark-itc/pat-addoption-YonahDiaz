@@ -333,6 +333,152 @@ async function editUser(req, res) {
   }
 }
 
+async function getPetByType(req, res) {
+  try {
+    const type = await req.body.type;
+    console.log(req.body);
+    const pet = await PetsDAO.getPetByType(type);
+    console.log(pet);
+    return res.json({
+      pet,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(404).json({
+      success: false,
+      message: "Not Found",
+    });
+  }
+}
+
+async function getPetAdvanced(req, res) {
+  try {
+    let petObject = {};
+    if (req.body.type !== "") {
+      petObject.type = await req.body.type;
+    }
+    if (req.body.adoptionStatus !== "") {
+      petObject.adoptionStatus = await req.body.adoptionStatus;
+    }
+    if (req.body.height !== "") {
+      petObject.height = await req.body.height;
+    }
+    if (req.body.weight !== "") {
+      petObject.weight = await req.body.weight;
+    }
+    if (req.body.petName !== "") {
+      petObject.petName = await req.body.petName;
+    }
+
+    console.log(petObject);
+    const pet = await PetsDAO.getPetAdvanced(petObject);
+    console.log(pet);
+    return res.json({
+      pet,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(404).json({
+      success: false,
+      message: "Not Found",
+    });
+  }
+}
+
+async function getMyPets(req, res) {
+  try {
+    let pet = [];
+    if (req.body.saved) {
+      for (let i = 0; i < req.body.saved.length; i++) {
+        pet.push(await PetsDAO.getPetById(new ObjectId(req.body.saved[i])));
+      }
+    }
+
+    if (req.body.adopted) {
+      for (let i = 0; i < req.body.adopted.length; i++) {
+        pet.push(await PetsDAO.getPetById(new ObjectId(req.body.adopted[i])));
+      }
+    }
+
+    if (req.body.fostered) {
+      for (let i = 0; i < req.body.fostered.length; i++) {
+        pet.push(await PetsDAO.getPetById(new ObjectId(req.body.fostered[i])));
+      }
+    }
+
+    console.log(pet);
+
+    return res.json({
+      pet,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(404).json({
+      success: false,
+      message: "Not Found",
+    });
+  }
+}
+
+async function getPetAndUser(req, res) {
+  try {
+    const id = await req.params["id"];
+    console.log(id);
+    const pet = await PetsDAO.getPetById(new ObjectId(id));
+    token = await req.headers.authorization;
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await UsersDAO.getUserById(new ObjectId(verified.user_id));
+    return res.json({
+      pet,
+      user,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
+async function saveAdoptFosterDeleteReturn(req, res) {
+  try {
+    const id = await req.params["id"];
+    const pet = await PetsDAO.getPetById(new ObjectId(id));
+    token = await req.headers.authorization;
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(pet);
+    console.log(id);
+    if (req.body.action === "Save") {
+      await UsersDAO.savePet(new ObjectId(verified.user_id), id);
+    }
+    if (req.body.action === "Adopt" && pet.available === true) {
+      await UsersDAO.adoptPet(new ObjectId(verified.user_id), id);
+      await PetsDAO.petNotAvailable(new ObjectId(id));
+      await UsersDAO.deleteSaved(new ObjectId(verified.user_id), id);
+    }
+    if (req.body.action === "Foster" && pet.available === true) {
+      await UsersDAO.fosterPet(new ObjectId(verified.user_id), id);
+      await PetsDAO.petNotAvailable(new ObjectId(id));
+      await UsersDAO.deleteSaved(new ObjectId(verified.user_id), id);
+    }
+    if (req.body.action === "Delete") {
+      await UsersDAO.deleteSaved(new ObjectId(verified.user_id), id);
+    }
+    if (req.body.action === "Return" && pet.available === false) {
+      await PetsDAO.petAvailable(new ObjectId(id));
+      await UsersDAO.returnPet(new ObjectId(verified.user_id), id);
+    }
+    return res.json({});
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "unknown error",
+    });
+  }
+}
+
 app.get("/lastsession", lastSession);
 
 app.post("/signIn", registerValidation, register);
@@ -345,13 +491,23 @@ app.get("/pets", isAdmin, getAllPets);
 
 app.get("/users", isAdmin, getAllUsers);
 
-app.get("/pet/:id", isAdmin, getPet);
+app.get("/pet/:id", isLogged, getPet);
 
 app.put("/pet/:id", isAdmin, upload.single("file"), editPet);
 
 app.get("/user", isLogged, getUser);
 
 app.put("/user/:id", isLogged, editUser);
+
+app.post("/petbytype", getPetByType);
+
+app.post("/petadvanced", getPetAdvanced);
+
+app.post("/mypets", isLogged, getMyPets);
+
+app.get("/petanduser/:id", isLogged, getPetAndUser);
+
+app.post("/safpet/:id", isLogged, saveAdoptFosterDeleteReturn);
 
 app.listen(3001, async () => {
   console.log("Server is running on port 3001");

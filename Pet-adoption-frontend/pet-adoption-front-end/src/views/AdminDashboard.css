@@ -14,8 +14,8 @@
   display: flex;
   flex-direction: column;
   border: 2px solid #343a40;
-  background: #8b8f92;
-  color: white;
+  background: antiquewhite;
+  color: black;
   padding: 10px;
   font-family: "Roboto";
   font-style: normal;
@@ -44,8 +44,8 @@
   height: 100%;
   border: 2px solid #343a40;
   border-radius: 5px;
-  color: white;
-  background: #8b8f92;
+  color: black;
+  background: antiquewhite;
   margin-bottom: 20px;
   width: 900px;
   height: 400px;

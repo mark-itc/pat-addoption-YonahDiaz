@@ -49,4 +49,42 @@ module.exports = class PetsDAO {
       }
     );
   }
+
+  static async getPetByType(type) {
+    return await petsCollection.find({ type }).toArray(function (err, result) {
+      if (err) throw err;
+      console.log(result);
+    });
+  }
+
+  static async getPetAdvanced(petObject) {
+    return await petsCollection.find(petObject).toArray(function (err, result) {
+      if (err) throw err;
+      console.log(result);
+    });
+  }
+
+  static async petAvailable(_id) {
+    petsCollection.updateOne(
+      { _id },
+      {
+        $set: {
+          adoptionStatus: "Available",
+          available: true,
+        },
+      }
+    );
+  }
+
+  static async petNotAvailable(_id) {
+    petsCollection.updateOne(
+      { _id },
+      {
+        $set: {
+          adoptionStatus: "Not Available",
+          available: false,
+        },
+      }
+    );
+  }
 };
